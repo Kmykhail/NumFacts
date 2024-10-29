@@ -107,7 +107,7 @@ fun MainScreen(
                 }
 
                 Button(
-                    onClick = { mainViewModel::fetchNumberFact },
+                    onClick = { mainViewModel.fetchRandomNumberFact() },
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(imageVector = Icons.Default.QuestionMark, contentDescription = "Random fact")

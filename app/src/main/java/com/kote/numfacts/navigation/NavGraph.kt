@@ -7,7 +7,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.kote.numfacts.model.NumberFact
 import com.kote.numfacts.ui.screens.MainScreen
 import com.kote.numfacts.ui.screens.MainScreenDestination
 import com.kote.numfacts.ui.screens.SecondaryScreen

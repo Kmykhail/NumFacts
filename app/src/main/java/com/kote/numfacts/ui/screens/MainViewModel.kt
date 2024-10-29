@@ -44,7 +44,7 @@ class MainViewModel(
     }
 
     fun fetchNumberFact(userInput: String, needCheck: Boolean = true) {
-        if (!needCheck || userInput.isNotEmpty() && userInput.isNotBlank() && userInput.isDigitsOnly()) {
+        if (!needCheck || userInput.isNotEmpty() && userInput.isDigitsOnly()) {
             viewModelScope.launch {
                 try {
                     val validNumberFact = onlineNetworkRepository.getNumberFact(userInput)
@@ -71,7 +71,7 @@ class MainViewModel(
     fun fetchRandomNumberFact() {
         val seed = System.currentTimeMillis()
         val random = Random(seed)
-        fetchNumberFact(random.nextLong().toString(), false)
+        fetchNumberFact(random.nextInt().toString(), false)
     }
 }
 
