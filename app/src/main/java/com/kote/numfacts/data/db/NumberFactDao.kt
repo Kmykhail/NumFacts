@@ -10,12 +10,15 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NumberFactDao {
-    @Query("SELECT * FROM NumberFacts ORDER BY number ASC")
+    @Query("SELECT * FROM NumberFacts ORDER BY timestamp DESC")
     fun getAllFacts() : Flow<List<NumberFact>>
+
+    @Query("SELECT * FROM NumberFacts WHERE id = :id")
+    fun getNumberFactById(id: Int) : Flow<NumberFact?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addFact(numberFact: NumberFact)
 
-    @Update
-    suspend fun updateFact(numberFact: NumberFact)
+    @Query("UPDATE NumberFacts SET fact = :fact WHERE id = :id")
+    suspend fun updateFact(id: Int, fact: String)
 }

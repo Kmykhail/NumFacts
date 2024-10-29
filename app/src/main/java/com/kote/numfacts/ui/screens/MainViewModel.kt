@@ -1,5 +1,8 @@
-package com.kote.numfacts.ui
+package com.kote.numfacts.ui.screens
 
+import android.util.Log
+import androidx.compose.ui.platform.LocalDensity
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kote.numfacts.data.OfflineDatabaseRepository
@@ -9,12 +12,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
+import kotlin.random.Random
 
 class MainViewModel(
     private val onlineNetworkRepository: OnlineNetworkRepository,
@@ -33,21 +36,28 @@ class MainViewModel(
         viewModelScope.launch {
             historyRequestedFactsFlow.collect { collected ->
                 _uiState.update { it.copy(historyRequestedFacts = collected) }
+                _uiState.value.historyRequestedFacts.forEach {
+                    println("NumFact number: ${it.number}")
+                }
             }
         }
     }
 
-    fun fetchNumberFact(userInput: String) {
-        if (userInput.isNotEmpty() && userInput.isNotBlank()) {
+    fun fetchNumberFact(userInput: String, needCheck: Boolean = true) {
+        if (!needCheck || userInput.isNotEmpty() && userInput.isNotBlank() && userInput.isDigitsOnly()) {
             viewModelScope.launch {
                 try {
-                    val validResponse = onlineNetworkRepository.getNumberFact(userInput)
-                    _uiState.update { it.copy(numFact = validResponse, requestState = RequestState.SUCCESS) }
+                    val validNumberFact = onlineNetworkRepository.getNumberFact(userInput)
+                    _uiState.update { it.copy(numFact = validNumberFact, requestState = RequestState.SUCCESS) }
 
-                    if (_uiState.value.historyRequestedFacts.contains(validResponse)) {
-                        offlineDatabaseRepository.updateFact(validResponse)
-                    } else {
-                        offlineDatabaseRepository.addFact(validResponse)
+                    _uiState.value.run {
+                        historyRequestedFacts.find { it.number == validNumberFact.number}
+                            ?.let {
+                                if (it.fact != validNumberFact.fact) {
+                                    offlineDatabaseRepository.updateFact(it.id, validNumberFact.fact)
+                                }
+                            }
+                            ?: offlineDatabaseRepository.addFact(validNumberFact)
                     }
                 } catch (e: IOException) {
                     _uiState.update { it.copy(requestState = RequestState.ERROR) }
@@ -57,6 +67,12 @@ class MainViewModel(
             }
         }
     }
+
+    fun fetchRandomNumberFact() {
+        val seed = System.currentTimeMillis()
+        val random = Random(seed)
+        fetchNumberFact(random.nextLong().toString(), false)
+    }
 }
 
 enum class RequestState{
@@ -64,7 +80,7 @@ enum class RequestState{
 }
 
 data class UiState(
-    val userInput: String = "",
+//    var userInput: String = "",
     val numFact: NumberFact? = null,
     val historyRequestedFacts: List<NumberFact> = emptyList(),
     val requestState: RequestState = RequestState.LOADING
