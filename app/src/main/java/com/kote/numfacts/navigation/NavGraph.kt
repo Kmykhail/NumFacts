@@ -42,7 +42,7 @@ fun NavGraph(
         ) {
             SecondaryScreen(
                 onNavigateUp = {
-                    navController.navigateUp()
+                    navController.popBackStack()
                 }
             )
         }

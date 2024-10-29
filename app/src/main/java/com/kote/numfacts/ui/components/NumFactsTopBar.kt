@@ -22,7 +22,7 @@ fun NumFactsTopBar(
         TopAppBar(
             title = { Text(text = title)},
             navigationIcon = {
-                IconButton(onClick = { navigateUp }) {
+                IconButton(onClick = navigateUp) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
                 }
             }
