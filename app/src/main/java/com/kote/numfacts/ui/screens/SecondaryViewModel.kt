@@ -1,15 +1,12 @@
 package com.kote.numfacts.ui.screens
 
-import android.view.View
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kote.numfacts.data.OfflineDatabaseRepository
 import com.kote.numfacts.model.NumberFact
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SecondaryViewModel(

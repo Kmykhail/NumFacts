@@ -1,10 +1,8 @@
 package com.kote.numfacts.ui.screens
 
-import android.telecom.Call.Details
-import androidx.compose.foundation.border
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,12 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,21 +32,14 @@ import com.kote.numfacts.ui.AppViewModelProvider
 import com.kote.numfacts.ui.components.NumberField
 import com.kote.numfacts.ui.theme.NumFactsTheme
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -72,13 +61,21 @@ fun MainScreen(
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
     var number by remember { mutableStateOf("") }
+    val content = LocalContext.current
 
     Scaffold(
         topBar = {
-            NumFactsTopBar(title = stringResource(R.string.app_name),canNavigateBack = false)
+            NumFactsTopBar(
+                title = stringResource(R.string.app_name),
+                canNavigateBack = false
+            )
         }
     ) { innerPadding ->
-        println("InnerPadding is $innerPadding")
+        uiState.toastMessage?.let {message ->
+            Toast.makeText(content, message, Toast.LENGTH_SHORT).show()
+            mainViewModel.resetToastMessage()
+        }
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
@@ -175,6 +172,6 @@ private fun HistoryRequestedFact(
 @Composable
 fun HistoryRequestedFactPreview() {
     NumFactsTheme {
-        HistoryRequestedFact(fact = NumberFact(number = 42, fact = "fact about number 42"), navigateToDetails = {})
+        HistoryRequestedFact(fact = NumberFact(number = "42", fact = "fact about number 42"), navigateToDetails = {})
     }
 }

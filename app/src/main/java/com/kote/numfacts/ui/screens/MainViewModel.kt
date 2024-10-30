@@ -1,8 +1,5 @@
 package com.kote.numfacts.ui.screens
 
-import android.util.Log
-import androidx.compose.ui.platform.LocalDensity
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kote.numfacts.data.OfflineDatabaseRepository
@@ -36,19 +33,16 @@ class MainViewModel(
         viewModelScope.launch {
             historyRequestedFactsFlow.collect { collected ->
                 _uiState.update { it.copy(historyRequestedFacts = collected) }
-                _uiState.value.historyRequestedFacts.forEach {
-                    println("NumFact number: ${it.number}")
-                }
             }
         }
     }
 
     fun fetchNumberFact(userInput: String, needCheck: Boolean = true) {
-        if (!needCheck || userInput.isNotEmpty() && userInput.isDigitsOnly()) {
+        if (!needCheck || userInput.isNotEmpty() && isValidNumber(userInput)) {
             viewModelScope.launch {
                 try {
                     val validNumberFact = onlineNetworkRepository.getNumberFact(userInput)
-                    _uiState.update { it.copy(numFact = validNumberFact, requestState = RequestState.SUCCESS) }
+//                    _uiState.update { it.copy(numFact = validNumberFact) }
 
                     _uiState.value.run {
                         historyRequestedFacts.find { it.number == validNumberFact.number}
@@ -60,9 +54,9 @@ class MainViewModel(
                             ?: offlineDatabaseRepository.addFact(validNumberFact)
                     }
                 } catch (e: IOException) {
-                    _uiState.update { it.copy(requestState = RequestState.ERROR) }
+                    _uiState.update { it.copy(toastMessage = "Please check the internet connection") }
                 } catch (e: HttpException) {
-                    _uiState.update { it.copy(requestState = RequestState.ERROR) }
+                    _uiState.update { it.copy(toastMessage = "Oops, something went wrong") }
                 }
             }
         }
@@ -73,15 +67,19 @@ class MainViewModel(
         val random = Random(seed)
         fetchNumberFact(random.nextInt().toString(), false)
     }
-}
 
-enum class RequestState{
-    SUCCESS, LOADING, ERROR
+    private fun isValidNumber(input: String): Boolean {
+        val regex = Regex("^-?\\d+$")
+        return regex.matches(input)
+    }
+
+    fun resetToastMessage() {
+        _uiState.update { it.copy(toastMessage = null) }
+    }
 }
 
 data class UiState(
-//    var userInput: String = "",
-    val numFact: NumberFact? = null,
+//    val numFact: NumberFact? = null,
     val historyRequestedFacts: List<NumberFact> = emptyList(),
-    val requestState: RequestState = RequestState.LOADING
+    val toastMessage : String? = null
 )

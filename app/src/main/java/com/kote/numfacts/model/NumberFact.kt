@@ -12,7 +12,7 @@ data class NumberFact(
     val id: Int = 0,
 
     @SerialName("number")
-    val number: Long,
+    val number: String,
 
     @SerialName("text")
     val fact: String,
